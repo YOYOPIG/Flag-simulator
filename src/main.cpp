@@ -12,6 +12,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
 #include "WenCheng.h"
+#include "Flag.h"
 
 
 static void error_callback(int error, const char* description)
@@ -97,6 +98,9 @@ int main(void)
 		glm::vec3 light_pos;
 		bool blinn_phong_on = false;
 
+		Flag flag;
+		flag.bindBufferObjects();
+
 		while (!glfwWindowShouldClose(window))
 		{
 			glfwPollEvents();
@@ -124,7 +128,7 @@ int main(void)
 
 			prog.use();
 			flagpoleMesh.draw();
-		
+
 			// Program 2 uses fs_light.frag, which is, the sun
 			{
 				prog2["vp"] = glm::perspective(45/180.0f*3.1415926f, 1024.0f/768.0f, 0.1f, 10000.0f)*
@@ -135,6 +139,9 @@ int main(void)
 
 				prog2.use();
 				lightMesh.draw();
+
+				prog2["model"] = glm::translate(glm::mat4(1.0f), light_pos)*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
+				flag.drawFlag();
 			}
 
 			glDisable(GL_DEPTH_TEST);
