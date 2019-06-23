@@ -6,6 +6,7 @@
 class Flag {
 public:
     Flag();
+    void updatePositions(Entity* entityArr);
     void bindBufferObjects();
     void drawFlag();
     

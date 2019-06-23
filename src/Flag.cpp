@@ -57,7 +57,21 @@ Flag::Flag()
         if((k+1)%3==0)
             std::cout<<std::endl;
     }
+}
 
+void Flag::updatePositions(Entity* entityArr)
+{
+    Entity cur;
+    float x = -1.0, y = 1.0, z = 0.0;
+    int i = 0;
+    int entityCtr = 0;
+    while(i<900)
+    {
+        vertices[i++] = cur.rigid.data.position.x;
+        vertices[i++] = cur.rigid.data.position.y;
+        vertices[i++] = cur.rigid.data.position.z;
+        cur = entityArr[++entityCtr];
+    }
 }
 
 void Flag::bindBufferObjects()

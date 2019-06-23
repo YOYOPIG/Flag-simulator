@@ -97,6 +97,7 @@ int main(void)
 		bool prev_flat = false;
 		glm::vec3 light_pos;
 		bool blinn_phong_on = false;
+		Entity entityArr[300];	// The flag is a 20*15 array
 
 		Flag flag;
 		flag.bindBufferObjects();
