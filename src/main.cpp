@@ -140,7 +140,7 @@ int main(void)
 				prog2.use();
 				lightMesh.draw();
 
-				prog2["model"] = glm::translate(glm::mat4(1.0f), light_pos)*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
+				prog2["model"] = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f,1.6f,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
 				flag.drawFlag();
 			}
 
