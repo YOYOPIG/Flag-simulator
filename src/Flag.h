@@ -3,10 +3,11 @@
 
 #include <glad/glad.h>
 #include <string>
+#include "Entity.h"
 class Flag {
 public:
-    Flag();
-    void updatePositions(Entity* entityArr);
+    Flag(Entity **entity);
+    void updatePositions(Entity** entityArr);
     void bindBufferObjects();
     void drawFlag();
     

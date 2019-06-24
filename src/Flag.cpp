@@ -1,16 +1,18 @@
 #include "Flag.h"
 #include <iostream>
 
-Flag::Flag()
+Flag::Flag(Entity **entity)
 {
     // Initialize vertices and indices
     float x = -1.0, y = 1.0, z = 0.0;
     int i = 0;
     while(i<900)
     {
+		entity[int(i / 3)]->rigid.setPosition(x, y, z);
         vertices[i++] = x;
         vertices[i++] = y;
         vertices[i++] = z;
+		
         x += 0.1;
         if(x >= 1.0)
         {
@@ -59,17 +61,17 @@ Flag::Flag()
     }
 }
 
-void Flag::updatePositions(Entity* entityArr)
+void Flag::updatePositions(Entity** entityArr)
 {
-    Entity cur;
+    Entity *cur = entityArr[0];
     float x = -1.0, y = 1.0, z = 0.0;
     int i = 0;
     int entityCtr = 0;
     while(i<900)
     {
-        vertices[i++] = cur.rigid.data.position.x;
-        vertices[i++] = cur.rigid.data.position.y;
-        vertices[i++] = cur.rigid.data.position.z;
+        vertices[i++] = cur->rigid.data.position.x;
+        vertices[i++] = cur->rigid.data.position.y;
+        vertices[i++] = cur->rigid.data.position.z;
         cur = entityArr[++entityCtr];
     }
 }
