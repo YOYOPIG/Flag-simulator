@@ -3,6 +3,11 @@
 
 Flag::Flag(Entity **entity)
 {
+    // Generate buffers needed later
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(2, VBO);
+    glGenBuffers(1, &IBO);
+
     // Initialize vertices and indices
     float x = -1.0, y = 1.0, z = 0.0;
     int i = 0;
@@ -67,52 +72,66 @@ void Flag::updatePositions(Entity** entityArr)
         vertices[i++] = cur->rigid.data.position.z;
         cur = entityArr[++entityCtr];
     }
-    //updateNormals();
+    if(!Dbug)
+    {
+        updateNormals();
+        //Dbug = true;
+    }
 }
 
-// void Flag::updateNormals()
-// {
-//     // Update face normals
-//     for(int i=0;i<14;++i)
-//     {
-//         for(int j=0;j<19;++j)
-//         {
-//             int topLeft = i * 20 + j;
-//             faceNormal[i][j] = glm::cross((getVertexPosition(topLeft+20)-getVertexPosition(topLeft)), (getVertexPosition(topLeft+1)-getVertexPosition(topLeft)));
-//         }
-//     }
-//     // Use face normals to get vertex normals
-//     for(int i=0;i<300;++i)
-//     {
-//         int tarX = i % 20; //cal blocks x and x-1
-//         int tarY = i / 20; //cal blocks y and y-1
-//         glm::vec3 result = glm::vec3(0,0,0);
-//         if(tarX-1>=0)
-//         {
-//             if(tarY-1>=0)
-//                 result += faceNormal[tarY-1][tarX-1];
-//             result += faceNormal[tarY][tarX-1];
-//         }
-//         if(tarY-1>=0)
-//             result += faceNormal[tarY-1][tarX];
-//         result += faceNormal[tarY][tarX];
+void Flag::updateNormals()
+{
+    // Update face normals
+    for(int i=0;i<14;++i)
+    {
+        for(int j=0;j<19;++j)
+        {
+            int topLeft = i * 20 + j;
+            faceNormal[i][j] = glm::cross((getVertexPosition(topLeft+20)-getVertexPosition(topLeft)), (getVertexPosition(topLeft+1)-getVertexPosition(topLeft)));
+            //std::cout<< faceNormal[i][j].x <<faceNormal[i][j].y<<faceNormal[i][j].z<<" ";
+        }
+        //std::cout<<std::endl;
+    }
+    // Use face normals to get vertex normals
+    for(int i=0;i<300;++i)
+    {
+        int tarX = i % 20; //cal blocks x and x-1
+        int tarY = i / 20; //cal blocks y and y-1
+        glm::vec3 result = glm::vec3(0,0,0);
+        if(tarX==19)
+        {
+            if(tarY-1>=0)
+                result += faceNormal[tarY-1][tarX-1];
+            result += faceNormal[tarY][tarX-1];
+        }
+        else if(tarY==14)
+        {
+            if(tarX-1>=0)
+                result += faceNormal[tarY-1][tarX-1];
+            result += faceNormal[tarY-1][tarX];
+        }
+        else
+        {
+            if(tarX-1>=0)
+            {
+                if(tarY-1>=0)
+                    result += faceNormal[tarY-1][tarX-1];
+                result += faceNormal[tarY][tarX-1];
+            }
+            if(tarY-1>=0)
+                result += faceNormal[tarY-1][tarX];
+            result += faceNormal[tarY][tarX];
+        }
+        
+        
 
-//         vertexNormals[i] = result;
-//     }
-// }
+        vertexNormals[i] = result;
+    }
+}
 
 void Flag::bindBufferObjects()
 {
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    // glBindVertexArray(VAO);
-
-    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    // glEnableVertexAttribArray(0);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -120,20 +139,23 @@ void Flag::bindBufferObjects()
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 	glBindVertexArray(0); 
-	glGenBuffers(1, &EBO);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-				// ..:: 初始化代码 :: ..
-	// 1. 绑定顶点数组对象
+
+	// 1. Bind vertex array
 	glBindVertexArray(VAO);
-	// 2. 把我们的顶点数组复制到一个顶点缓冲中，供OpenGL使用
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	// 2. Copy into buffers for openGL
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	// 3. 复制我们的索引数组到一个索引缓冲中，供OpenGL使用
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * 300, vertexNormals, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	// 4. 设定顶点属性指针
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
+	// 3. Set attributes
+    
+	
 }
 
 void Flag::drawFlag()
@@ -145,5 +167,5 @@ void Flag::drawFlag()
 
 glm::vec3 Flag::getVertexPosition(int vertexID)
 {
-    return glm::vec3(indices[3*vertexID], indices[3*vertexID+1], indices[3*vertexID+2]);
+    return glm::vec3(vertices[3*vertexID], vertices[3*vertexID+1], vertices[3*vertexID+2]);
 }

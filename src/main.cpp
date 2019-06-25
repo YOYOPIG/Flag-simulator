@@ -301,6 +301,7 @@ int main(void)
 	auto text = Texture2D::LoadFromFile("../resource/image.png");
     auto flagpoleMesh = StaticMesh::LoadMesh("../resource/flagpole.obj", false);
 	auto lightMesh = StaticMesh::LoadMesh("../resource/sphere.obj", false);
+	auto groundMesh = StaticMesh::LoadMesh("../resource/ground.obj", false);
 
 	// Create vertex and fragment shader programs
     auto prog = Program::LoadFromFile(
@@ -369,6 +370,7 @@ int main(void)
 		glm::vec3 object_color{1.0f};
 		glm::vec3 light_color{ 1.0f };
 		bool flat_shading = false;
+		bool minnaertShading = true;
 		bool prev_flat = false;
 		glm::vec3 light_pos;
 		bool blinn_phong_on = false;
@@ -435,16 +437,19 @@ int main(void)
 			prog.use();
 			flagpoleMesh.draw();
 
+			prog["model"] = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f,-2.5f,0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(20.0f, 20.0f, 20.0f));
+			groundMesh.draw();
+
 			{
 				flagProg["vp"] = glm::perspective(45/180.0f*3.1415926f, 1024.0f/768.0f, 0.1f, 10000.0f)*TPcamera.getViewMatrix();
 				flagProg["model"] = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f,1.6f,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
 				flagProg["object_color"] =  object_color;
 				flagProg["light_pos"] = TPcamera.Position + TPcamera.radius * TPcamera.Front;
 				flagProg["eye_pos"] = TPcamera.Position;
-				flagProg["blinn_phong_on"] = blinn_phong_on;
+				flagProg["minnaert"] = minnaertShading;
 				flagProg["light_color"] = light_color;
 				flagProg["shininess"] = shininess;
-				flagProg["flat_shading"] = 1;
+				flagProg["flat_shading"] = static_cast<int>(flat_shading);
 				flagProg.use();
 				flag.drawFlag();
 			}
@@ -498,6 +503,7 @@ int main(void)
 				ImGui::Text("counter = %d", counter);
 				ImGui::Checkbox("Flat Shading", &flat_shading);
 				ImGui::Checkbox("Blinn Phong", &blinn_phong_on);
+				ImGui::Checkbox("Minnaert Shading", &minnaertShading);
 
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 				if(ImGui::Button("Reload Shader")) {
