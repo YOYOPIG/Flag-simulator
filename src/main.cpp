@@ -17,6 +17,7 @@
 #include "Physics.h"
 #include <queue>
 #include "Spring.h"
+#include "AABBTree.h"
 
 
 static void error_callback(int error, const char* description)
@@ -312,6 +313,11 @@ int main(void)
         "../resource/gs.geom",
         "../resource/fs_light.frag"
     );
+	auto flagProg = Program::LoadFromFile(
+        "../resource/vs.vert",
+        "../resource/gs.geom",
+        "../resource/fs_flag.frag"
+    );
 	
 	//*************************************					vvvv	flag initialize 	vvvv				****************************************//
 	Entity *entityArr[300];
@@ -347,6 +353,7 @@ int main(void)
 		auto g2 = Protect(flagpoleMesh);
 		auto g3 = Protect(prog);
 		auto g4 = Protect(lightMesh);
+		auto g5 = Protect(flagProg);
 
 		if(!flagpoleMesh.hasUV()) {
 			std::cerr<<"Mesh does not have uv\n";
@@ -427,6 +434,20 @@ int main(void)
 
 			prog.use();
 			flagpoleMesh.draw();
+
+			{
+				flagProg["vp"] = glm::perspective(45/180.0f*3.1415926f, 1024.0f/768.0f, 0.1f, 10000.0f)*TPcamera.getViewMatrix();
+				flagProg["model"] = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f,1.6f,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
+				flagProg["object_color"] =  object_color;
+				flagProg["light_pos"] = TPcamera.Position + TPcamera.radius * TPcamera.Front;
+				flagProg["eye_pos"] = TPcamera.Position;
+				flagProg["blinn_phong_on"] = blinn_phong_on;
+				flagProg["light_color"] = light_color;
+				flagProg["shininess"] = shininess;
+				flagProg["flat_shading"] = 1;
+				flagProg.use();
+				flag.drawFlag();
+			}
 		
 			// Program 2 uses fs_light.frag, which is, the sun
 			{
@@ -440,9 +461,9 @@ int main(void)
 
 				prog2.use();
 				lightMesh.draw();
-				
-				prog2["model"] = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f,1.6f,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
-				flag.drawFlag();
+
+				// prog2["model"] = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f,1.6f,0.0f))*glm::scale(glm::mat4(1.0f), glm::vec3{2.0f});
+				// flag.drawFlag();
 				
 				prog2["object_color"] = glm::vec3(0.5, 0.0, 0.0);
 				prog2["model"] = glm::mat4(1.0);

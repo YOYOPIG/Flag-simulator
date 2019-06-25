@@ -16,7 +16,6 @@ Flag::Flag(Entity **entity)
         x += 0.1;
         if(x >= 1.0)
         {
-            std::cout<<std::endl;
             x = -1.0;
             y -= 0.1;
         }
@@ -53,12 +52,6 @@ Flag::Flag(Entity **entity)
             endIndex += 20;
         }
     }
-    for(int k=0;k<1596;++k)
-    {
-        std::cout<<indices[k]<<" ";
-        if((k+1)%3==0)
-            std::cout<<std::endl;
-    }
 }
 
 void Flag::updatePositions(Entity** entityArr)
@@ -74,7 +67,39 @@ void Flag::updatePositions(Entity** entityArr)
         vertices[i++] = cur->rigid.data.position.z;
         cur = entityArr[++entityCtr];
     }
+    //updateNormals();
 }
+
+// void Flag::updateNormals()
+// {
+//     // Update face normals
+//     for(int i=0;i<14;++i)
+//     {
+//         for(int j=0;j<19;++j)
+//         {
+//             int topLeft = i * 20 + j;
+//             faceNormal[i][j] = glm::cross((getVertexPosition(topLeft+20)-getVertexPosition(topLeft)), (getVertexPosition(topLeft+1)-getVertexPosition(topLeft)));
+//         }
+//     }
+//     // Use face normals to get vertex normals
+//     for(int i=0;i<300;++i)
+//     {
+//         int tarX = i % 20; //cal blocks x and x-1
+//         int tarY = i / 20; //cal blocks y and y-1
+//         glm::vec3 result = glm::vec3(0,0,0);
+//         if(tarX-1>=0)
+//         {
+//             if(tarY-1>=0)
+//                 result += faceNormal[tarY-1][tarX-1];
+//             result += faceNormal[tarY][tarX-1];
+//         }
+//         if(tarY-1>=0)
+//             result += faceNormal[tarY-1][tarX];
+//         result += faceNormal[tarY][tarX];
+
+//         vertexNormals[i] = result;
+//     }
+// }
 
 void Flag::bindBufferObjects()
 {
@@ -116,4 +141,9 @@ void Flag::drawFlag()
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 1596, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+}
+
+glm::vec3 Flag::getVertexPosition(int vertexID)
+{
+    return glm::vec3(indices[3*vertexID], indices[3*vertexID+1], indices[3*vertexID+2]);
 }
