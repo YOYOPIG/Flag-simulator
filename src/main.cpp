@@ -260,12 +260,12 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    window = glfwCreateWindow(1024, 768, "Simple example", NULL, NULL);
+    window = glfwCreateWindow(1024, 768, "Flag simulation", NULL, NULL);
 	
 	//set cursor disabled
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (ImmIsIME(GetKeyboardLayout(0))) {
-		ImmSimulateHotKey(FindWindow(NULL,"Simple example"), 16);
+		ImmSimulateHotKey(FindWindow(NULL,"Flag simulation"), 16);
 	}
 	
 
@@ -374,7 +374,8 @@ int main(void)
 		bool prev_flat = false;
 		glm::vec3 light_pos;
 		bool blinn_phong_on = false;
-		
+		bool randomWind = false;
+		bool typhoonMode = false;
 		
 		glm::vec3 wind_direction{1.0f};
 		float wind_force = 0;
@@ -405,6 +406,20 @@ int main(void)
 			glEnable(GL_DEPTH_TEST);
 			
 			//physic compute
+			if(randomWind)
+			{
+				glm::vec3 dWind = glm::vec3(rand(), rand(), rand());
+				wind_direction += dWind;
+			}
+			if(typhoonMode)
+			{
+				glm::vec3 dWind = glm::vec3(rand(), rand(), rand());
+				if(rand()%2==0)
+					wind_direction += dWind;
+				else
+					wind_direction -= dWind;
+				wind_force = 0.2;
+			}
 			wind_direction = glm::normalize(wind_direction);
 			springUpdate(springArr);
 			for (int i = 0; i < 300; ++i){
@@ -487,20 +502,22 @@ int main(void)
 			{
 				static int counter = 0;
 
-				ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+				ImGui::Begin("Simulation");                          // Create a window called "Hello, world!" and append into it.
 
 				ImGui::SliderFloat("degree", &degree, 0.0f, 360.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-				ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+				ImGui::ColorEdit3("background color", (float*)&clear_color); // Edit 3 floats representing a color
 				ImGui::ColorEdit3("object color", glm::value_ptr(object_color)); // Edit 3 floats representing a color
 				ImGui::ColorEdit3("light color", glm::value_ptr(light_color));
 				ImGui::SliderFloat3("wind direction", glm::value_ptr(wind_direction), -1, 1);
+				ImGui::Checkbox("random wind dir", &randomWind);
+				ImGui::Checkbox("AHHHHHTyphoonIsHere", &typhoonMode);
 				ImGui::SliderFloat("shininess", &shininess, 1.0f, 100.0f);
-				ImGui::SliderFloat3("Position", glm::value_ptr(light_pos), -10, 10);
+				//ImGui::SliderFloat3("Position", glm::value_ptr(light_pos), -10, 10);
 				ImGui::SliderFloat("wind force", &wind_force, 0, 0.01);
-				if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-					counter++;
-				ImGui::SameLine();
-				ImGui::Text("counter = %d", counter);
+				// if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				// 	counter++;
+				// ImGui::SameLine();
+				// ImGui::Text("counter = %d", counter);
 				ImGui::Checkbox("Flat Shading", &flat_shading);
 				ImGui::Checkbox("Blinn Phong", &blinn_phong_on);
 				ImGui::Checkbox("Minnaert Shading", &minnaertShading);
