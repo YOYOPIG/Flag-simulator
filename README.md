@@ -1,5 +1,5 @@
 # Flag-simulator
-
+This is a program using openGL to do flag simulation.
 ## Requirements
 1. cmake
 2. conan - package manager
