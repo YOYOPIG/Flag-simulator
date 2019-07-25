@@ -1,5 +1,6 @@
 # Flag-simulator
-This is a program using openGL to do flag simulation.
+This is a program using openGL to do flag simulation. The physics simulation is based on the array of particles on the flag, while the shading is done with Minnaert shading algorithm.
+
 ## Requirements
 1. cmake
 2. conan - package manager
